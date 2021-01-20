@@ -24,7 +24,9 @@
           }
       },
       "variables": {
-          "FunctionName": "[concat(toLower(parameters('FunctionName')), uniqueString(resourceGroup().id))]"
+          "FunctionName": "[concat(toLower(parameters('FunctionName')), uniqueString(resourceGroup().id))]",
+          "StorageSuffix":"[environment().suffixes.storage]",
+          "LogAnaltyicsUri":"[replace(environment().portal, 'https://portal', concat('https://', parameters['WorkspaceID'], '.ods.opinsights'))]"
       },
       "resources": [
           {
@@ -253,6 +255,16 @@
                   "shareQuota": 5120
               }
           }
-      ]
+      ],
+  "outputs": {
+    "storageSuffixValue": {
+      "type": "object",
+      "value": "[variables('StorageSuffix')]"
+    },
+    "logAnalyticsUriValue": {
+      "type": "object",
+      "value": "[variables('LogAnaltyicsUri')]"
+    }
+  }
   }
   
