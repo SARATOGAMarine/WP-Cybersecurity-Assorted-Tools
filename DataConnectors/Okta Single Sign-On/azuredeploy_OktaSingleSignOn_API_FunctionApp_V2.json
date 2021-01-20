@@ -159,7 +159,7 @@
                         },
                         {
                             "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', toLower(variables('FunctionName')),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(variables('FunctionName'))), '2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', toLower(variables('FunctionName')),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(variables('FunctionName'))), '2019-06-01').keys[0].value, ';EndpointSuffix=',toLower(variables('StorageSuffix')))]"
                         },
                         {
                             "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
@@ -196,6 +196,10 @@
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
                             "value": "https://aka.ms/sentineloktaazurefunctioncodev2"
+                        },
+                        {
+                            "name": "LogAnalyticsUri",
+                            "value": "[variables('LogAnaltyicsUri')]"
                         }
                     ],
                     "powerShellVersion": "~7"
@@ -255,16 +259,5 @@
                   "shareQuota": 5120
               }
           }
-      ],
-  "outputs": {
-    "storageSuffixValue": {
-      "type": "string",
-      "value": "[variables('StorageSuffix')]"
-    },
-    "logAnalyticsUriValue": {
-      "type": "string",
-      "value": "[variables('LogAnaltyicsUri')]"
-    }
+      ]
   }
-  }
-  
