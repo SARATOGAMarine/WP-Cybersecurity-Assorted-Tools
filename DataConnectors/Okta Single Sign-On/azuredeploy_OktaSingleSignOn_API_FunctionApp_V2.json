@@ -26,7 +26,7 @@
       "variables": {
           "FunctionName": "[concat(toLower(parameters('FunctionName')), uniqueString(resourceGroup().id))]",
           "StorageSuffix":"[environment().suffixes.storage]",
-          "LogAnaltyicsUri":"[replace(environment().portal, 'https://portal', concat('https://', toLower(parameters('WorkspaceID')), '.ods.opinsights'))]"
+          "LogAnaltyicsUri":"[replace(environment().portal, 'https://portal', concat('https://', toLower(parameters('WorkspaceID')), '.ods.opinsights'))]",
           "AzureWebsiteHostName":"[reference(resourceId('Microsoft.Web/sites', variables('FunctionName')), '2019-08-01').defaultHostName)]"
       },
       "resources": [
