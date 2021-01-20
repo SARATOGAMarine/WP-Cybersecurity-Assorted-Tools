@@ -258,11 +258,11 @@
       ],
   "outputs": {
     "storageSuffixValue": {
-      "type": "object",
+      "type": "string",
       "value": "[variables('StorageSuffix')]"
     },
     "logAnalyticsUriValue": {
-      "type": "object",
+      "type": "string",
       "value": "[variables('LogAnaltyicsUri')]"
     }
   }
