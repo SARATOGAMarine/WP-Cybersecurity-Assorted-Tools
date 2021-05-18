@@ -148,10 +148,10 @@ def function():
         logging.info("Invalid API Key: ".format(api_id))
         status = "Invalid API Key"
     else:
-        logging.info("Retrrieved workbenchlist count: ".format(len(workbench_list)))
         if "totalCount" in workbench_list['data']:
             print("Key exist in JSON data")
         workbenchcount = workbench_list['data']['totalCount']
+        logging.info("workbenchlist count: ".format(workbenchcount))
         status = ("New WorkBench Alerts:"+ str(workbenchcount))
         
         while a < workbenchcount:
