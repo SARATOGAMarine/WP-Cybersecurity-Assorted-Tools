@@ -75,7 +75,7 @@ ParserQuery: |
                                 TargetProcessName = Image,
                                 TargetProcessIntegrityLevel = IntegrityLevel,
                                 
-                                TargetProcessCompany = Company,
+                                TargetProcessFile = Company,
                                 TargetProcessFileDescription = Description,
                                 TargetProcessFileVersion = FileVersion,
                                 TargetProcessFileProduct = Product,

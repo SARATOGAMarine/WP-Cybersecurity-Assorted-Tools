@@ -76,7 +76,7 @@ ParserQuery: |
                   TargetProcessTokenElevation = ProcessTokenElevation,
                   TargetProcessCreationTime = ProcessCreationTime,
                   // TargetProcessFileSize = FileSize,
-                  // TargetProcessCompany = ProcessVersionInfoCompanyName,
+                  // TargetProcessFileCompany = ProcessVersionInfoCompanyName,
                   // TargetProcessFileProduct = ProcessVersionInfoProductName,
                   // TargetProcessFileVersion = ProcessVersionInfoProductVersion,
                   // TargetProcessFileInternalName = ProcessVersionInfoInternalFileName,
@@ -94,7 +94,7 @@ ParserQuery: |
                   ActingProcessCreationTime = InitiatingProcessCreationTime
 
                   // ActingProcessFileSize = InitiatingProcessFileSize,
-                  // ActingProcessCompany = InitiatingProcessVersionInfoCompanyName,
+                  // ActingProcessFileCompany = InitiatingProcessVersionInfoCompanyName,
                   // ActingProcessFileProduct = InitiatingProcessVersionInfoProductName,
                   // ActingProcessFileVersion = InitiatingProcessVersionInfoProductVersion,
                   // ActingProcessFileInternalName = InitiatingProcessVersionInfoInternalFileName,
