@@ -47,6 +47,8 @@ ParserQuery: |
                                 TargetProcessSHA256=extract(@'SHA256=(\w+)',1, tostring(Hashes)),
                                 TargetProcessIMPHASH=extract(@'IMPHASH=(\w+)',1,tostring(Hashes)), // add to the empty schema + Excel file
                                 TargetProcessMD5=extract(@'MD5=(\w+)',1, tostring(Hashes))
+                    | project-away
+                                Hashes
                         // End of XML parse
                     | extend 
                                 EventType = "ProcessCreated",
