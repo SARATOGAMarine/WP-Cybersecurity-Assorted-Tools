@@ -33,7 +33,8 @@ ParserQuery: |
                   EventOritingalType = EventID,
                   EventOriginalUid = EventOriginId,
                   EventResultDetails = Status,
-                  EventOriginalResultDetails = Status, 
+                  EventOriginalResultDetails = Status,
+                  EventResult = 'Success',
 
                 // Device
                   DvcId = SourceComputerId,

@@ -33,6 +33,7 @@ ParserQuery: |
       EventOriginalType:string,
       EventStartTime:datetime,
       EventEndTime:datetime,
+      EventResult:sring,
       EventReportUrl:string,
       AdditionalFields:dynamic,
   // ****** Device fields ******

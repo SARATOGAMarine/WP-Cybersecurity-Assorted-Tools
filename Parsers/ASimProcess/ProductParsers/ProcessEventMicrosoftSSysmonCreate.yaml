@@ -58,6 +58,7 @@ ParserQuery: |
                                 EventVendor = "Microsoft",
                                 EventSchemaVersion = "0.1.0",
                                 EventProduct = "Event",
+                                EventResult = 'Success',
                                 DvcOs = "Windows",
                                 TargetUserSessionId = toint(LogonId)  ,           
                                 TargetUsernameType = "Windows",

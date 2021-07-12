@@ -42,6 +42,7 @@ ParserQuery: |
                   EventType = 'ProcessCreated',
                   EventOritingalType = EventID,
                   EventOriginalUid = EventOriginId, 
+                  EventResult = 'Success',
 
                 // Device
                   DvcId = SourceComputerId,
