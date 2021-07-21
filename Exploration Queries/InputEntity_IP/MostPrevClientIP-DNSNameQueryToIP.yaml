@@ -14,7 +14,7 @@ Tactics:
   - CommandAndControl
   - Exfiltration
 query: |
-  let isPmDnsInstalled=toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 0) | getschema | count | project Exists=(Count>1));   // returns scalar: (1) imDns is installed, (0) imDns is not installed
+  let isPmDnsInstalled=toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 1) | count);   // returns scalar: (1) imDns is installed and has data, (0) imDns is not installed, or has no data
   let GetAllIPByClientIP = (v_IP_Address:string){                // --- Legacy version                             
     (datatable(exists:int)[1] | where not(isPmDnsInstalled))     // if imDns is installed: table empty [], and join will not be calculated. 
     | join (                                                     // If imDns not installed , returns table [1], anf join is simple
