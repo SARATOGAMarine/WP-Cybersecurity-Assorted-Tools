@@ -6,7 +6,7 @@ Product:
   Name: Infoblox
 Normalization:
   Schema: Dns
-  Version: '0.1.1'
+  Version: '0.2.0'
 References:
 - Title: ASIM DNS Schema
   Link: https://aka.ms/AzSentinelDnsDoc
@@ -16,8 +16,19 @@ Description: |
   This is a Query Parser that is used to map Infoblox NIOX Dns Events (Syslog) to the Azure Sentinel Information Model Dns schema.
 ParserName: vimDnsInfobloxNIOS
 ParserQuery: |
-  let Infoblox=(){
-    let RawData = Syslog | where ProcessName == "named" and SyslogMessage has "client"
+  let Infoblox=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+    let RawData = Syslog 
+    // *****************************************************************
+    //  Pre-parsing filterring:
+    // This filtering is not accurate. Further filtering down the line
+        | where
+          (isnull(starttime) or TimeGenerated > starttime)
+          and (isnull(endtime) or TimeGenerated < endtime) 
+          and (srcipaddr=='*' or  has_ipv4( SyslogMessage ,srcipaddr))
+          and (domain=='*' or SyslogMessage has (domain) )
+          and (responsecodename=='*' or SyslogMessage has responsecodename)
+    // *****************************************************************
+    | where ProcessName == "named" and SyslogMessage has "client"
       | where Computer in ("datasource") and Facility == "local6"
       | extend Parser = extract_all(@"^(\d{2}\-[a-zA-Z]{3}\-\d{4}\s[0-9\.\:]+)?\s?([a-zA-Z-_]+)(\s|\:)?(.*)", dynamic([1,2,3,4]), SyslogMessage)[0]
       | extend ResponseTime = todatetime(Parser[0]),
@@ -33,6 +44,11 @@ ParserQuery: |
                 , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? (UDP|TCP):? (view: DNS view)?query: (\S+) ([A-Z]+) (\S+) response:? ([A-Z]+) (\S+)(([^;]+;\s*)*)',dnsdata)[0]
                 //<client IP>#<port> query: <query_Domain name> <class name> <type name> <- or +>[SETDC] <(name server ip)>
                 , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? query: (\S+) (\S+) (\S+) ([+-]) \(([0-9.]+)\)',dnsdata)[0])
+    // Post-filtering accurately now that message is parsed
+   | where
+         (srcipaddr=='*' or  SrcIpAddr==srcipaddr)
+          and (domain=='*' or Query has domain) 
+          and (responsecodename=='*' or ResponseCodeName has responsecodename)
     | extend
     // ******************* Mandatory
          EventCount=int(1),
@@ -43,7 +59,6 @@ ParserQuery: |
          EventType="lookup", 
         EventResult=iff(EventSubType=='request' or tostring(dnsclient[8])=='NOERROR','Success','Failure'),
          EventResultDetails=iff (EventSubType=='response',tostring(dnsclient[8]),""),
-         // TimeGenerated, // not handled by schema, but we need to preserve it
          SrcIpAddr = tostring(dnsclient[1]),
          EventSubType=iff(dnsclient has "response:", "response","request"), 
         // 

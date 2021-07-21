@@ -6,7 +6,7 @@ Product:
   Name: MS DNS Events
 Normalization:
   Schema: Dns
-  Version: '1.0.0'
+  Version: '1.2.0'
 References:
 - Title: ASIM DNS Schema
   Link: https://aka.ms/AzSentinelDnsDoc
@@ -38,9 +38,20 @@ ParserQuery: |
    , 21,'BADALG'
    , 22,'BADTRUNC'
    , 23,'BADCOOKIE'];
-  let DNSQuery_MS=(){
-    DnsEvents |  where EventId in (257,258)
-  | project-rename
+  let DNSQuery_MS=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+    DnsEvents 
+    // ******************************************************************
+      //  Pre-parsing filterring:
+        | where
+          (isnull(starttime) or TimeGenerated > starttime)
+          and (isnull(endtime) or TimeGenerated < endtime) 
+          and (srcipaddr=='*' or ClientIP==srcipaddr)
+          and (domain=='*' or Name=~domain)
+          and (responsecodename=='*' or ResultCode=~responsecode)
+          and (response=='*' or has_ipv4(IPAddresses,response) )
+    // *****************************************************************
+    |  where EventId in (257,258)
+    | project-rename
          Dvc=Computer ,
          SrcIpAddr = ClientIP,
          DnsQueryTypeName=QueryType,

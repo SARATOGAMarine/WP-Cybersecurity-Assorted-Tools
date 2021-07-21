@@ -1,4 +1,4 @@
-Id: 0cb64e03-8534-47b6-9094-7de2d018fd7a
+Id: 459c5e59-906e-46cc-a417-6900f829f794
 DisplayName: Most prevalent client IPs with DNS name lookup query for this IP
 Description: Summary of Top 10 Client IP and Domain Names for a given remote IPAddress from DnsEvent Lookup Query data (set time range to +-3h when running the query)
 InputEntityType: Ip
@@ -14,15 +14,31 @@ Tactics:
   - CommandAndControl
   - Exfiltration
 query: |
-
+  let isPmDnsInstalled=toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 0) | getschema | count | project Exists=(Count>1));
   let GetAllIPByClientIP = (v_IP_Address:string){
-  DnsEvents
-  | where SubType == 'LookupQuery'
-  | where IPAddresses has v_IP_Address
-  | extend IP_Aux_IPAddresses = split(IPAddresses,','), IP_Address=ClientIP
-  | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Name), IP_Aux_Count= count() by IP_Address, IPAddresses
-  | project-away IPAddresses
-  | top 10 by IP_Aux_Count desc nulls last
-  };
-  // change <Address> value below
-  GetAllIPByClientIP('<Address>')
+    (datatable(exists:int)[1] | where not(isPmDnsInstalled)) // if pmDns !installed - [1]. if instaled []
+    | join (
+      DnsEvents
+      | where SubType == 'LookupQuery'
+      | where IPAddresses has v_IP_Address
+      | extend IP_Aux_IPAddresses = split(IPAddresses,','), IP_Address=ClientIP
+      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Name), IP_Aux_Count= count() by IP_Address, IPAddresses
+      | project-away IPAddresses
+      | top 10 by IP_Aux_Count desc nulls last
+      | extend exists=int(1)
+      ) on exists
+      | project-away exists* 
+    };
+  let pmGetAllIPByClientIP = (v_IP_Address:string){ 
+    (datatable(exists:int)[1] | where isPmDnsInstalled)
+    | join (
+      imDns(srcipaddr=v_IP_Address)  // Normalized Version we need to see how we deal with the time issue...
+      | extend IP_Aux_IPAddresses = split(ResponseName,','), IP_Address=SrcIpAddr
+      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Query), IP_Aux_Count= count() by IP_Address, ResponseName
+      | project-away ResponseName
+      | top 10 by IP_Aux_Count desc nulls last | extend exists=int(1)
+      ) on exists
+      | project-away exists* 
+    };
+    // change <Address> value below
+    union isfuzzy=true GetAllIPByClientIP('<Address>'), pmGetAllIPByClientIP('<Address>')

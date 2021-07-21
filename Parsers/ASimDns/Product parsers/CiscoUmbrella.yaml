@@ -6,7 +6,7 @@ Product:
   Name: Cisco
 Normalization:
   Schema: Dns
-  Version: '0.1.1'
+  Version: '0.2.0'
 References:
 - Title: ASIM DNS Schema
   Link: https://aka.ms/AzSentinelDnsDoc
@@ -16,10 +16,18 @@ Description: |
   This is a Query Parser that is used to map Cisco Umrella Dns Events (Cisco_Umbrella_dns_CL) to the Azure Sentinel Information Model Dns schema.
 ParserName: vimDnsCiscoUmbrella
 ParserQuery: |
-  let DNSQuery_CiscoUmbrella=(){
+  let DNSQuery_CiscoUmbrella=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
       Cisco_Umbrella_dns_CL
-      // 
-      // *********** Parsing
+      // ******************************************************************
+      //  Pre-parsing filterring:
+        | where
+          (isnull(starttime) or TimeGenerated > starttime)
+          and (isnull(endtime) or TimeGenerated < endtime) 
+          and (srcipaddr=='*' or InternalIp_s==srcipaddr)
+          and (domain=='*' or Domain_s=~domain)
+          and (responsecodename=='*' or ResponseCode_s=~responsecodename)
+        //  and (response=='*' or has_ipv4(ResponseName,response))
+      // *****************************************************************
       | parse QueryType_s with DnsQueryType:int " ("DnsQueryTypeName:string ")"
       //
       | project 
