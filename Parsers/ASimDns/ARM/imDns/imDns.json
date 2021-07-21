@@ -28,6 +28,7 @@
               "displayName": " ASIM DNS source agnostic parser",
               "category": "Security",
               "FunctionAlias": "imDns",
+              "functionParameters": "starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'",
               "query": "union isfuzzy=true vimDnsEmpty, vimDnsCiscoUmbrella , vimDnsInfobloxNIOS , vimDnsMicrosoftOMS",
               "version": 1
           }

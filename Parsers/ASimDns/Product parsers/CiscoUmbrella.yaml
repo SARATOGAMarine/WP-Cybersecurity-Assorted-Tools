@@ -15,6 +15,28 @@ References:
 Description: |
   This is a Query Parser that is used to map Cisco Umrella Dns Events (Cisco_Umbrella_dns_CL) to the Azure Sentinel Information Model Dns schema.
 ParserName: vimDnsCiscoUmbrella
+ParserParams:
+  - Name: starttime
+    Type: datetime
+    Default: datetime(null)
+  - Name: endtime
+    Type: datetime
+    Default: datetime(null)
+  - Name: srcipaddr
+    Type: string
+    Default: '*'
+  - Name: domain
+    Type: string
+    Default: '*'
+  - Name: responsecodename
+    Type: string
+    Default: '*'
+  - Name: response
+    Type: string
+    Default: '*'
+  - Name: eventtype
+    Type: string
+    Default: 'lookup'
 ParserQuery: |
   let DNSQuery_CiscoUmbrella=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
       Cisco_Umbrella_dns_CL
@@ -77,4 +99,4 @@ ParserQuery: |
         , QueryTypeName=DnsQueryTypeName
         // 
          };
-  DNSQuery_CiscoUmbrella
+  DNSQuery_CiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)

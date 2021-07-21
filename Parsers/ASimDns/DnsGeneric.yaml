@@ -15,9 +15,27 @@ References:
 Description: |
   TODO
 ParserName: imDns
+ParserParams:
+  - Name: starttime
+    Type: datetime
+  - Name: endtime
+    Type: datetime
+  - Name: srcipaddr
+    Type: string
+  - Name: domain
+    Type: string
+  - Name: responsecodename
+    Type: string
+  - Name: response
+    Type: string
+  - Name: eventtype
+    Type: string
 ParserQuery: |
+  let DnsGeneric=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
   union isfuzzy=true
-    vimDnsEmpty,
-    , vimDnsCiscoUmbrella
-    , vimDnsInfobloxNIOS
-    , vimDnsMicrosoftOMS
+    vimDnsEmpty
+    , vimDnsCiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
+    , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
+    , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
+  };
+  DnsGeneric(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
