@@ -14,10 +14,10 @@ Tactics:
   - CommandAndControl
   - Exfiltration
 query: |
-  let isPmDnsInstalled=toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 0) | getschema | count | project Exists=(Count>1));
-  let GetAllIPByClientIP = (v_IP_Address:string){
-    (datatable(exists:int)[1] | where not(isPmDnsInstalled)) // if pmDns !installed - [1]. if instaled []
-    | join (
+  let isPmDnsInstalled=toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 0) | getschema | count | project Exists=(Count>1));   // returns scalar: (1) imDns is installed, (0) imDns is not installed
+  let GetAllIPByClientIP = (v_IP_Address:string){                // --- Legacy version                             
+    (datatable(exists:int)[1] | where not(isPmDnsInstalled))     // if imDns is installed: table empty [], and join will not be calculated. 
+    | join (                                                     // If imDns not installed , returns table [1], anf join is simple
       DnsEvents
       | where SubType == 'LookupQuery'
       | where IPAddresses has v_IP_Address
@@ -29,9 +29,9 @@ query: |
       ) on exists
       | project-away exists* 
     };
-  let pmGetAllIPByClientIP = (v_IP_Address:string){ 
-    (datatable(exists:int)[1] | where isPmDnsInstalled)
-    | join (
+  let pmGetAllIPByClientIP = (v_IP_Address:string){           // ---  Normalized Version
+    (datatable(exists:int)[1] | where isPmDnsInstalled)       // if imDns not installed: table empty [], and join will not be calculated.
+    | join (                                                  // If imDns is  installed , returns table [1], and join is simple
       imDns(srcipaddr=v_IP_Address)  // Normalized Version we need to see how we deal with the time issue...
       | extend IP_Aux_IPAddresses = split(ResponseName,','), IP_Address=SrcIpAddr
       | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Query), IP_Aux_Count= count() by IP_Address, ResponseName
