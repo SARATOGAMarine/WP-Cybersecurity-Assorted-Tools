@@ -29,7 +29,7 @@
               "category": "Security",
               "FunctionAlias": "imDns",
               "functionParameters": "starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'",
-              "query": "union isfuzzy=true vimDnsEmpty, vimDnsCiscoUmbrella , vimDnsInfobloxNIOS , vimDnsMicrosoftOMS",
+              "query": "union isfuzzy=true vimDnsEmpty(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype), vimDnsCiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype) , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype) , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)",
               "version": 1
           }
         }
