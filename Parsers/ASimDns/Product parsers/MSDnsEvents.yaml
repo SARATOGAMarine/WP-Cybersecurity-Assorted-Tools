@@ -61,6 +61,7 @@ ParserQuery: |
    , 22,'BADTRUNC'
    , 23,'BADCOOKIE'];
   let DNSQuery_MS=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+    let rcodenames=RCodeTable | project ResponseCodeName;
     DnsEvents 
     // ******************************************************************
       //  Pre-parsing filterring:
@@ -69,7 +70,7 @@ ParserQuery: |
           and (isnull(endtime) or TimeGenerated < endtime) 
           and (srcipaddr=='*' or ClientIP==srcipaddr)
           and (domain=='*' or Name=~domain)
-          and (responsecodename=='*' or ResultCode=~responsecode)
+          and (responsecodename=='*' or ResultCode in (rcodenames))
           and (response=='*' or has_ipv4(IPAddresses,response) )
     // *****************************************************************
     |  where EventId in (257,258)
