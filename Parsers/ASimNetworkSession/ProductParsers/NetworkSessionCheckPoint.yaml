@@ -16,54 +16,78 @@ Description: |
   This Query Parser maps Check Point Firewall Events (CommonSecurityLogs) to the Azure Sentinel Information Model Network Session schema.
 ParserName: vimNetworkSessionCheckPoint
 ParserQuery: |
+  let DvcActionLookup = datatable (DeviceOriginalAction:string, DvcAction:string, EventResult) [
+    "drop", "Drop", "Failure",
+    "reject", "deny", "Failure",
+    "dropreject", "deny", "Failure",
+    "accept", "accept", "Success",
+    "encrypt", "encrypt", "Success",
+    "decrypt", "decrypt", "Success",
+    "vpnroute", "vpnroute", "Success",
+    "keyinst", "other", "Success",
+    "authorize", "other", "NA",
+    "deauthorize", "other", "NA",
+    "authcrypt", "other", "NA",
+    "default", "other", "NA"
+  ];
+  let EventSeverityLookup = datatable (EventOriginalSeverity: string, EventSeverity: string)
+  [
+    "Low", "Low",
+    "Medium", "Medium",
+    "High", "High",
+    "Very-High", "High",
+  ];
+  let IpProtocolLookup = // !! do general function
   let NetworkParserCheckPoint=(){
   CommonSecurityLog
   | where DeviceVendor=="Check Point" and DeviceProduct=="VPN-1 & FireWall-1"
-  | project-rename 
-      EventResourceId=_ResourceId
-      , EventVendor=DeviceVendor
-      , EventProduct=DeviceProduct
-      , NetworkProtocol=Protocol
-    , EventSeverity=LogSeverity 
-      , SrcNatIpAddr=SourceTranslatedAddress
-      , SrcNatPortNumber=SourceTranslatedPort
-      , DstNatIpAddr=DestinationTranslatedAddress
-      , DstNatPortNumber=DestinationTranslatedPort
-      , DstBytes=ReceivedBytes
-      , SrcBytes=SentBytes
-      , DvcMacAddr=DeviceMacAddress
-      , DstDvcHostname=DestinationHostName
-      , DstMacAddr=DestinationMACAddress
-    , SrcMacAddr=SourceMACAddress
-    , DvcAction=DeviceAction
-  | extend
-      EventSchemaVersion="0.1.0"
-    , EventCount=toint(1)
-    , EventUid=_ItemId
-      , EventOriginalUid=extract(@'loguid=(\{[^\}]+\})',1,AdditionalExtensions, typeof(string))
-      , EventTimeIngested =ingestion_time()
-      , DvcHostname=extract(@'originsicname=cn\\\\=([^,]+),',1,AdditionalExtensions, typeof(string))
-      , EventType="Traffic"
-      , EventResult=case(isempty(DvcAction),"", DvcAction=="Accept","Success","Failure") 
-      , SrcZone=extract(@'inzone=([^;]+);',1,AdditionalExtensions, typeof(string))
-      , DstZone=extract(@'outzone=([^;]+);',1,AdditionalExtensions, typeof(string))
-      , NetworkRuleName=iff (DvcAction=="Accept" ,"", coalesce( DeviceCustomString2 , extract(@'(action_reason=|tcp_packet_out_of_state=)([^;]+)',2,AdditionalExtensions, typeof(string)), Activity))
-      , NetworkApplicationProtocol=iff (DvcAction !="Accept", Activity,"")
-      , ["NetworkRuleNumber"]=extract(@"rule_uid=([0-9a-f\x2d]+)",1, AdditionalExtensions)
-  // Trivial rename for mitigating autocomplete
   | project-rename
-      NetworkDirection=CommunicationDirection
-      , EventEndTime=EndTime
-    , EventStartTime= StartTime
-    , EventMessage=Message
-    , TimeGenerated=TimeGenerated
-      , DstIpAddr=DestinationIP
-      , DstPortNumber=DestinationPort
-      , SrcPortNumber=SourcePort
-      , SrcIpAddr=SourceIP
-      , DstUserName=DestinationUserName
-    , DvcOutboundInterface=DeviceOutboundInterface
-    , DvcInboundInterface=DeviceInboundInterface
-    , SrcUserName=SourceUserName
+      , EventVendor = DeviceVendor // OK
+      , EventProduct = DeviceProduct // OK
+      , EventOriginalSeverity = LogSeverity // Updated
+      , SrcNatIpAddr=SourceTranslatedAddress // OK
+      , SrcNatPortNumber=SourceTranslatedPort // OK
+      , DstNatIpAddr=DestinationTranslatedAddress // OK
+      , DstNatPortNumber=DestinationTranslatedPort // OK
+      , DstBytes=ReceivedBytes // OK
+      , SrcBytes=SentBytes // OK
+      , DvcMacAddr=DeviceMacAddress // OK, not in schema
+      , DstHostname=DestinationHostName // Fixed
+      , DstMacAddr=DestinationMACAddress // OK, not in schema
+      , SrcMacAddr=SourceMACAddress // OK, not in schema
+      , DvcOriginalAction=DeviceAction // New
+      , EventEndTime = todatetime(ReceiptTime) // fixed 
+      , EventStartTime= EventEndTime // fixed
+      , EventMessage=Message  // OK
+      , DstIpAddr=DestinationIP  // OK
+      , DstPortNumber=DestinationPort  // OK
+      , SrcIpAddr=SourceIP  // OK
+      , SrcPortNumber=SourcePort  // OK
+      , DstUsername=DestinationUserName  // fixed 
+      , SrcUsername=SourceUserName // fixed
+      , DvcOutboundInterface=DeviceOutboundInterface // OK
+      , DvcInboundInterface=DeviceInboundInterface // OK
+      , DstAppName = destinationServiceName // fixed
+  | lookup DvcActionLookup on DeviceOriginalAction // -- lookup DvcAction and EventResult
+  | lookup EventSeverityLookup on EventOriginalSeverity // -- lookup EventSeverity
+  | extend
+      DstAppType = "Service"
+      , NetworkProtocol=IpProtocolLookup(Protocol) // New
+      , NetworkDirection = iff(CommunicationDirection == 0, "Inbound", "Outbound") // Updated
+      , EventSchemaVersion="0.1.0" // OK
+      , EventCount=toint(1) // OK
+      , EventOriginalUid=extract(@'loguid=(\{[^\}]+\})',1,AdditionalExtensions, typeof(string)) // OK
+      , DvcHostname=extract(@'originsicname=cn\\\\=([^,]+),',1,AdditionalExtensions, typeof(string)) // OK
+      , EventType="NetworkSession" // Fixed
+      , SrcZone=extract(@'inzone=([^;]+);',1,AdditionalExtensions, typeof(string)) // OK
+      , DstZone=extract(@'outzone=([^;]+);',1,AdditionalExtensions, typeof(string)) // OK
+      , NetworkRuleName=iff (DeviceCustomString2Label == "Rule Name", DeviceCustomString2, "") // fixed
+      , NetworkRuleNumber = extract(@"rule_uid=([0-9a-f\x2d]+)",1, AdditionalExtensions) // fixed
+  // Aliases
+  | extend 
+    IpAddr = SrcIpAddr
+    , User = DstUsername
+    , Dvc = DstHostname
+  // EventCount is available in the original
   };
   NetworkParserCheckPoint
