@@ -1,12 +1,12 @@
 Parser:
   Title: Windows Firewall Network Sessions
   Version: '0.0'
-  LastUpdated: June 20, 2021
+  LastUpdated: Aug 3, 2021
 Product:
   Name: WindowsFirewall
 Normalization:
   Schema: NetworkSessions
-  Version: '0.1.0'
+  Version: '0.2.0'
 References:
 - Title: ASIM Network Session Schema
   Link: https://aka.ms/AzSentinelNetworkSessionDoc
@@ -18,23 +18,26 @@ ParserName: vimNetworkSessionMicrosoftWindowsFirewall
 ParserQuery: |
   let NetworkParserWindowsFirewall=(){ WindowsFirewall
   | extend 
-     EventType = "NetworkSession", 
-     EventSchemaVersion="0.1.0",
-     EventCount=toint(1),
-     EventVendor = "Microsoft",
-     EventProduct = "WindowsFirewall",
-     EventResult="Success",
-     EventSeverity=tostring(Severity) ??
+     EventType = "NetworkSession", // OK
+     EventSchemaVersion="0.2.0", // OK
+     EventCount=toint(1), // OK
+     EventVendor = "Microsoft", // OK
+     EventProduct = "Windows Firewall", // OK
+     EventResult="Success", // OK
+     EventSeverity=tostring(Severity) // ??
   | project-rename 
-     DvcAction=FirewallAction ??
+     DvcAction=FirewallAction // ??
      DvcHostname = Computer, 
-     EventResourceId = _ResourceId,
-     NetworkProtocol = Protocol, 
+     NetworkProtocol = Protocol, // ??
      EventMessage = Description, 
-     SrcIpAddr=SourceIP,
+     SrcIpAddr=SourceIP, // Direction?
      DstIpAddr=DestinationIP,
      DstPortNumber=DestinationPort,
      SrcPortNumber=SourcePort,
      EventReportUrl = ReportReferenceLink
+   //
+   // Aliases
+   | extend
+     Dvc = DvcHostname
   };
   NetworkParserWindowsFirewall
