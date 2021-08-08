@@ -38,9 +38,12 @@ ParserParams:
     Type: string
     Default: 'lookup'
 ParserQuery: |
-  let DNSQuery_CiscoUmbrella=(starttime:datetime=datetime(null), endtime:datetime=datetime(null)
+  let DNSQuery_CiscoUmbrella=(
+    starttime:datetime=datetime(null), endtime:datetime=datetime(null)
     , srcipaddr:string='*',domain:string='*'
-    , responsecodename:string='*', response:string='*',response_has_any_ipv4:dynamic=dynamic([]), eventtype:string='lookup'){
+    , responsecodename:string='*', response:string='*',response_has_any_ipv4:dynamic=dynamic([])
+    , eventtype:string='lookup'
+    ){
       Cisco_Umbrella_dns_CL
       // ******************************************************************
       //  Pre-parsing filterring:

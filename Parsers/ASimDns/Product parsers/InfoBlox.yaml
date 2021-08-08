@@ -38,7 +38,11 @@ ParserParams:
     Type: string
     Default: 'lookup'
 ParserQuery: |
-  let Infoblox=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+  let Infoblox=(
+    starttime:datetime=datetime(null), endtime:datetime=datetime(null)
+    , srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*'
+    , eventtype:string='lookup'
+    ){
     let RawData = Syslog 
     // *****************************************************************
     //  Pre-parsing filterring:

@@ -40,7 +40,11 @@ ParserParams:
     Type: string
     Default: 'lookup'
 ParserQuery: |
-  let DNSQuery_GcpDns=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+  let DNSQuery_GcpDns=(
+    starttime:datetime=datetime(null), endtime:datetime=datetime(null)
+    , srcipaddr:string='*',domain:string='*'
+    , responsecodename:string='*', response:string='*', eventtype:string='lookup'
+    ){
       GCP_DNS_CL
   // ******************************************************************
   //  Pre-parsing filterring:
