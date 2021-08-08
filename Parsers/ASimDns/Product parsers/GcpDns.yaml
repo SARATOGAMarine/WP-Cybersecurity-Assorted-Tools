@@ -41,9 +41,11 @@ ParserParams:
     Default: 'lookup'
 ParserQuery: |
   let DNSQuery_GcpDns=(
-    starttime:datetime=datetime(null), endtime:datetime=datetime(null)
-    , srcipaddr:string='*',domain:string='*'
-    , responsecodename:string='*', response:string='*', eventtype:string='lookup'
+     starttime:datetime=datetime(null), endtime:datetime=datetime(null)
+    , srcipaddr:string='*'
+    ,domain:string='*', domain_has_any:dynamic=dynamic([]) 
+    , responsecodename:string='*', dnsresponsename:string='*'
+    , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup'
     ){
       GCP_DNS_CL
   // ******************************************************************
@@ -53,6 +55,7 @@ ParserQuery: |
       and (isnull(endtime) or TimeGenerated < endtime) 
       and (srcipaddr=='*' or payload_sourceIP_s==srcipaddr)
       and (domain=='*' or payload_queryName_s=~domain)
+      and (array_length(domain_has_any) ==0 or payload_queryName_s has_any (domain_has_any))
       and (responsecodename=='*' or payload_responseCode_s=~responsecodename)
   // *****************************************************************
       | where resource_type_s == "dns_query"

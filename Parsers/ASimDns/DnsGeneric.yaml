@@ -13,29 +13,39 @@ References:
 - Title: Dns schema documentation
   Link: https://aka.ms/AzSentinelDnsDoc
 Description: |
-  TODO
+  ASIM Source Agnostic DNS Parser
 ParserName: imDns
 ParserParams:
   - Name: starttime
     Type: datetime
+    Default: datetime(null)
   - Name: endtime
     Type: datetime
+    Default: datetime(null)
   - Name: srcipaddr
     Type: string
-  - Name: domain
-    Type: string
+    Default: '*'
+  - Name: domain_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: responsecodename
     Type: string
-  - Name: response
+    Default: '*'
+  - Name: dnsresponsename
     Type: string
+    Default: '*'
+  - Name: response_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: eventtype
     Type: string
+    Default: 'lookup'
 ParserQuery: |
-  let DnsGeneric=(starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'){
+  let DnsGeneric=(starttime:datetime=datetime(null), endtime:datetime=datetime(null) , srcipaddr:string='*' , domain_has_any:dynamic=dynamic([]) , responsecodename:string='*', dnsresponsename:string='*' , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup' ){
   union isfuzzy=true
     vimDnsEmpty
-    , vimDnsCiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
-    , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
-    , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
+    , vimDnsCiscoUmbrella(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
+    , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
+    , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
   };
-  DnsGeneric(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)
+  DnsGeneric(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)

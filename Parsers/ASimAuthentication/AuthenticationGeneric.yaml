@@ -13,7 +13,7 @@ References:
 - Title: ASIM
   Link: https:/aka.ms/AzSentinelNormalization
 Description: |
-      This Query creates an empty table of the authentication schema.
+      ASIM Source Agnostic Authentication Parser
 ParserName: imAuthentication
 ParserQuery: |
   union isfuzzy=true

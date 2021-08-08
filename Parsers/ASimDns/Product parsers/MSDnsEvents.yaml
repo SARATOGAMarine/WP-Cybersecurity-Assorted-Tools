@@ -25,15 +25,18 @@ ParserParams:
   - Name: srcipaddr
     Type: string
     Default: '*'
-  - Name: domain
-    Type: string
-    Default: '*'
+  - Name: domain_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: responsecodename
     Type: string
     Default: '*'
-  - Name: response
+  - Name: dnsresponsename
     Type: string
     Default: '*'
+  - Name: response_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: eventtype
     Type: string
     Default: 'lookup'
@@ -63,7 +66,7 @@ ParserQuery: |
   let DNSQuery_MS=(
     starttime:datetime=datetime(null), endtime:datetime=datetime(null)
     , srcipaddr:string='*'
-    ,domain:string='*', domain_has_any:dynamic=dynamic([]) 
+    , domain_has_any:dynamic=dynamic([]) 
     , responsecodename:string='*', dnsresponsename:string='*'
     , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup'
     ){
@@ -75,7 +78,6 @@ ParserQuery: |
           (isnull(starttime) or TimeGenerated > starttime)
           and (isnull(endtime) or TimeGenerated < endtime) 
           and (srcipaddr=='*' or ClientIP==srcipaddr)
-          and (domain=='*' or Name=~domain)
           and (array_length(domain_has_any) ==0 or Name has_any (domain_has_any))
           and (responsecodename=='*' or ResultCode in (rcodenames))
           and (dnsresponsename=='*' or has_ipv4(IPAddresses,dnsresponsename) )
@@ -122,4 +124,4 @@ ParserQuery: |
       , DnsResponseCode=ResponseCode
       , DnsResponseCodeName=ResponseCodeName
         };
-  DNSQuery_MS(starttime, endtime, srcipaddr,domain,domain_has_any, responsecodename, response, response_has_any, eventtype)
+  DNSQuery_MS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
