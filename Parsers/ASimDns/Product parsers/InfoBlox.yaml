@@ -25,23 +25,28 @@ ParserParams:
   - Name: srcipaddr
     Type: string
     Default: '*'
-  - Name: domain
-    Type: string
-    Default: '*'
+  - Name: domain_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: responsecodename
     Type: string
     Default: '*'
-  - Name: response
+  - Name: dnsresponsename
     Type: string
     Default: '*'
+  - Name: response_has_any
+    Type: dynamic
+    Default: dynamic([])
   - Name: eventtype
     Type: string
     Default: 'lookup'
 ParserQuery: |
   let Infoblox=(
     starttime:datetime=datetime(null), endtime:datetime=datetime(null)
-    , srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*'
-    , eventtype:string='lookup'
+    , srcipaddr:string='*'
+    , domain_has_any:dynamic=dynamic([]) 
+    , responsecodename:string='*', dnsresponsename:string='*'
+    , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup'
     ){
     let RawData = Syslog 
     // *****************************************************************
@@ -51,7 +56,8 @@ ParserQuery: |
           (isnull(starttime) or TimeGenerated > starttime)
           and (isnull(endtime) or TimeGenerated < endtime) 
           and (srcipaddr=='*' or  has_ipv4( SyslogMessage ,srcipaddr))
-          and (domain=='*' or SyslogMessage has (domain) )
+          and (array_length(domain_has_any) ==0 or SyslogMessage has_any (domain_has_any) )
+          and (array_length(domain_has_any) ==0 or SyslogMessage has_any (domain_has_any))
           and (responsecodename=='*' or SyslogMessage has responsecodename)
     // *****************************************************************
     | where ProcessName == "named" and SyslogMessage has "client"
@@ -73,7 +79,7 @@ ParserQuery: |
     // Post-filtering accurately now that message is parsed
    | where
          (srcipaddr=='*' or  SrcIpAddr==srcipaddr)
-          and (domain=='*' or Query has domain) 
+          and (array_length(domain_has_any) ==0 or Query has_any (domain_has_any))
           and (responsecodename=='*' or ResponseCodeName has responsecodename)
     | extend
     // ******************* Mandatory
