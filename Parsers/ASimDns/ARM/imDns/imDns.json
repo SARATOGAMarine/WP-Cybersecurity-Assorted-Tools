@@ -28,8 +28,8 @@
               "displayName": " ASIM DNS source agnostic parser",
               "category": "Security",
               "FunctionAlias": "imDns",
-              "functionParameters": "starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*',domain:string='*', responsecodename:string='*', response:string='*', eventtype:string='lookup'",
-              "query": "union isfuzzy=true vimDnsEmpty(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype), vimDnsCiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype) , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype) , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr,domain, responsecodename, response, eventtype)",
+              "functionParameters": "starttime:datetime=datetime(null), endtime:datetime=datetime(null), srcipaddr:string='*', domain_has_any:dynamic=dynamic([]), responsecodename:string='*', dnsresponsename:string='*' , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup'",
+              "query": "let DnsGeneric=(starttime:datetime=datetime(null), endtime:datetime=datetime(null) , srcipaddr:string='*' , domain_has_any:dynamic=dynamic([]) , responsecodename:string='*', dnsresponsename:string='*' , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup' ){\nunion isfuzzy=true\n  vimDnsEmpty\n  , vimDnsCiscoUmbrella(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)\n  , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)\n  , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)\n};\nDnsGeneric(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)",
               "version": 1
           }
         }
