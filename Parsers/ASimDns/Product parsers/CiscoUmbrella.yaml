@@ -67,7 +67,7 @@ ParserQuery: |
       // ******************* Mandatory
         Type='Cisco_Umbrella_dns_CL',
          EventCount=int(1),
-         EventStartTime=todatetime(Timestamp_t),
+         EventStartTime=todatetime(column_ifexists('Timestamp_t',column_ifexists('Timestamp_s',''))),
          EventProduct="Umbrella",
          EventVendor="Cisco Systems",
          EventSchemaVersion="0.1.1",

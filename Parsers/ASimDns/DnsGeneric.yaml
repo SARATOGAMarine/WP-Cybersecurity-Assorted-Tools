@@ -44,8 +44,8 @@ ParserQuery: |
   let DnsGeneric=(starttime:datetime=datetime(null), endtime:datetime=datetime(null) , srcipaddr:string='*' , domain_has_any:dynamic=dynamic([]) , responsecodename:string='*', dnsresponsename:string='*' , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup' ){
   union isfuzzy=true
     vimDnsEmpty
-    , vimDnsCiscoUmbrella(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
-    , vimDnsInfobloxNIOS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
-    , vimDnsMicrosoftOMS(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
+    , vimDnsCiscoUmbrella( starttime, endtime, srcipaddr, domain_has_any, responsecodename, dnsresponsename, response_has_any, eventtype)
+    , vimDnsInfobloxNIOS( starttime, endtime, srcipaddr, domain_has_any, responsecodename, dnsresponsename, response_has_any, eventtype)
+    , vimDnsMicrosoftOMS( starttime, endtime, srcipaddr, domain_has_any, responsecodename, dnsresponsename, response_has_any, eventtype)
   };
-  DnsGeneric(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
+  DnsGeneric( starttime, endtime, srcipaddr, domain_has_any, responsecodename, dnsresponsename, response_has_any, eventtype)
