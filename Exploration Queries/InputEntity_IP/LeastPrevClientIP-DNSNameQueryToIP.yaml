@@ -26,17 +26,19 @@ query: |
       | top 10 by IP_Aux_Count asc nulls last | extend exists=int(1)
       ) on exists
       | project-away exists* 
+      | extend IP_Aux_pmDNS=False
     };
   let pmGetAllIPByClientIP = (v_IP_Address:string){            // ---  Normalized Version
     (datatable(exists:int)[1] | where isimDnsInstalled)        // if imDns not installed: table empty [], and join will not be calculated. 
     | join (                                                   // If imDns is  installed , returns table [1], and join is simple
-      imDns(response=v_IP_Address) 
+      imDns( response_has_any= v_IP_Address)
       | extend IP_Aux_IPAddresses = split(ResponseName,','), IP_Address=SrcIpAddr
       | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Query), IP_Aux_Count= count() by IP_Address, ResponseName
       | project-away ResponseName
       | top 10 by IP_Aux_Count asc nulls last | extend exists=int(1)
       ) on exists
       | project-away exists* 
+      | extend IP_Aux_pmDNS=True
     };
     // change <Address> value below
     union isfuzzy=true GetAllIPByClientIP('<Address>'), pmGetAllIPByClientIP('<Address>')
