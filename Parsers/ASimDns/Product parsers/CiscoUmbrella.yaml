@@ -110,4 +110,4 @@ ParserQuery: |
         , QueryTypeName=DnsQueryTypeName
         // 
          };
-  DNSQuery_CiscoUmbrella(starttime, endtime, srcipaddr,domain, responsecodename, dnsresponsename, eventtype)
+  DNSQuery_CiscoUmbrella(starttime, endtime, srcipaddr, domain_has_any, responsecodename, response, response_has_any, eventtype)
