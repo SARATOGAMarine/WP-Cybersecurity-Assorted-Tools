@@ -76,11 +76,15 @@ ParserQuery: |
                 , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? (UDP|TCP):? (view: DNS view)?query: (\S+) ([A-Z]+) (\S+) response:? ([A-Z]+) (\S+)(([^;]+;\s*)*)',dnsdata)[0]
                 //<client IP>#<port> query: <query_Domain name> <class name> <type name> <- or +>[SETDC] <(name server ip)>
                 , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? query: (\S+) (\S+) (\S+) ([+-]) \(([0-9.]+)\)',dnsdata)[0])
+     | extend 
+        SrcIpAddr = tostring(dnsclient[1]),
+        DnsQuery = iff (EventSubType=='response',tostring(dnsclient[5]), tostring(dnsclient[3])),
+        DnsResponseCodeName = iff (EventSubType=='response',tostring(dnsclient[8]),"")
     // Post-filtering accurately now that message is parsed
-   | where
+    | where
          (srcipaddr=='*' or  SrcIpAddr==srcipaddr)
-          and (array_length(domain_has_any) ==0 or Query has_any (domain_has_any))
-          and (responsecodename=='*' or ResponseCodeName has responsecodename)
+          and (array_length(domain_has_any) ==0 or DnsQuery has_any (domain_has_any))
+          and (responsecodename=='*' or DnsResponseCodeName has responsecodename)
     | extend
     // ******************* Mandatory
          EventCount=int(1),
@@ -91,15 +95,12 @@ ParserQuery: |
          EventType="lookup", 
         EventResult=iff(EventSubType=='request' or tostring(dnsclient[8])=='NOERROR','Success','Failure'),
          EventResultDetails=iff (EventSubType=='response',tostring(dnsclient[8]),""),
-         SrcIpAddr = tostring(dnsclient[1]),
          EventSubType=iff(dnsclient has "response:", "response","request"), 
         // 
         SrcPortNumber = toint(dnsclient[2]),
         NetworkProtocol = iff (EventSubType=='reaponse', tostring(dnsclient[3]),""),        
-        DnsQuery = iff (EventSubType=='response',tostring(dnsclient[5]), tostring(dnsclient[3])),
         DnsQueryClassName = iff (EventSubType=='response',tostring(dnsclient[6]),tostring(dnsclient[4])),
         DnsQueryTypeName = iff (EventSubType=='response',tostring(dnsclient[7]),tostring(dnsclient[5])),
-        DnsResponseCodeName = iff (EventSubType=='response',tostring(dnsclient[8]),""),
         DnsFlags =iff (EventSubType=='response', tostring(dnsclient[9]),tostring(dnsclient[6])),
         // 
         EventMessage = iff (EventSubType=='response',tostring(dnsclient[-2]),""),
