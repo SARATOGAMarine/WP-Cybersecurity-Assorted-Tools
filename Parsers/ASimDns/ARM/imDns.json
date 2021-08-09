@@ -35,7 +35,11 @@
                         "value": "[parameters('location')]"
                     },
                     "infobloxComputer": {
-                        "value": "[parameters('infobloxComputer')]"
+                        "type": "string",
+                        "defaultValue": "\"Infoblox:false\"",
+                        "metadata": {
+                            "description": "Comma separated list of quoted Infoblox computer names. Use \"Infoblox:false\" if there's no Infoblox device in the environment."
+                        }
                     }
                 }
             }
