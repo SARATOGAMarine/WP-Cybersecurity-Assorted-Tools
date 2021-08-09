@@ -14,29 +14,26 @@ Tactics:
   - CommandAndControl
   - Exfiltration
 query: |
-  let isimDnsInstalled=tobool(toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 1) | count));   // returns scalar: (true) imDns is installed and has data, (false) imDns is not installed, or has no data
-  let GetAllIPByClientIP = (v_IP_Address:string){                // --- Legacy version                             
+  let isimDnsInstalled=tobool(toscalar(union isfuzzy=true  (datatable(Test:string)[]), (imDns| take 1) | count));  // returns scalar: (true) imDns is installed and has data, (false) imDns is not installed, or has no data
+  let GetAllIPByClientIP = (v_IP_Address:string){                // --- Legacy version
     (datatable(exists:int)[1] | where not(isimDnsInstalled))     // if imDns is installed: table empty [], and join will not be calculated. 
     | join (                                                     // If imDns not installed , returns table [1], anf join is simple
       DnsEvents
       | where SubType == 'LookupQuery'
       | where IPAddresses has v_IP_Address
       | extend IP_Aux_IPAddresses = split(IPAddresses,','), IP_Address=ClientIP
-      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Name), IP_Aux_Count= count() by IP_Address, IPAddresses
-      | project-away IPAddresses
-      | top 10 by IP_Aux_Count desc nulls last
-      | extend exists=int(1)
+      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Name), IP_Aux_Count= count() by IP_Address
+      | top 10 by IP_Aux_Count desc nulls last | extend exists=int(1)
       ) on exists
       | project-away exists* 
       | extend IP_Aux_pmDNS=False
     };
-  let pmGetAllIPByClientIP = (v_IP_Address:string){           // ---  Normalized Version
-    (datatable(exists:int)[1] | where isimDnsInstalled)       // if imDns not installed: table empty [], and join will not be calculated.
-    | join (                                                  // If imDns is  installed , returns table [1], and join is simple
-       imDns( response_has_any= v_IP_Address)  // Normalized Version we need to see how we deal with the time issue...
-      | extend IP_Aux_IPAddresses = split(ResponseName,','), IP_Address=SrcIpAddr
-      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Query), IP_Aux_Count= count() by IP_Address, ResponseName
-      | project-away ResponseName
+  let pmGetAllIPByClientIP = (v_IP_Address:string){            // ---  Normalized Version
+    (datatable(exists:int)[1] | where isimDnsInstalled)        // if imDns not installed: table empty [], and join will not be calculated. 
+    | join (                                                   // If imDns is  installed , returns table [1], and join is simple
+      imDns( dnsresponsename= v_IP_Address)
+      | extend IP_Aux_IPAddresses = split(DnsResponseName,','), IP_Address=SrcIpAddr
+      | summarize IP_Aux_StartTime=min(TimeGenerated), IP_Aux_EndTime=max(TimeGenerated), IP_Aux_DomainNames=makeset(Query), IP_Aux_Count= count() by IP_Address
       | top 10 by IP_Aux_Count desc nulls last | extend exists=int(1)
       ) on exists
       | project-away exists* 
