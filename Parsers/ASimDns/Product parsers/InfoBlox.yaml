@@ -103,7 +103,7 @@ ParserQuery: |
         DnsFlags =iff (EventSubType=='response', tostring(dnsclient[9]),tostring(dnsclient[6])),
         // 
         EventMessage = iff (EventSubType=='response',tostring(dnsclient[-2]),""),
-        DstIpAddr=iff(EventSubType=='response','',dnsclient[-1])
+        DstIpAddr=iff(EventSubType=='response',"",dnsclient[-1])
    | project-rename
        // * Added in version 0.1.1
          DvcHostname=Computer

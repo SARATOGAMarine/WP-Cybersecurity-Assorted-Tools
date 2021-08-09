@@ -101,8 +101,9 @@ ParserQuery: |
         DnsResponseCodeName=EventResultDetails, 
         DomainCategory=UrlCategory,
         Domain=DnsQuery,
-        IpAddr=SrcIpAddr,
+        IpAddr=SrcIpAddr
     // Backward Competability
+        | extend
         Query=DnsQuery
         , QueryType=DnsQueryType
         , ResponseCodeName=DnsResponseCodeName
