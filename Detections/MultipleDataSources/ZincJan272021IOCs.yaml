@@ -61,9 +61,9 @@ query: |
   | extend DataType = "DnsEvents", IPAddress = ClientIP
   | project Type, TimeGenerated, Computer, IPAddress, DNSName
   ),
-  (imDns
-  | where isnotempty(DnsQuery)
-  | where DnsQuery  in~ (DomainNames)
+  (imDns (domain_has_any=DomainNames)
+  // | where isnotempty(DnsQuery)
+  // | where DnsQuery  in~ (DomainNames)
   | extend DNSName = DnsQuery
   | extend DataType = "imDns", IPAddress = SrcIpAddr, Computer=Dvc
   | project Type, TimeGenerated, Computer, IPAddress, DNSName

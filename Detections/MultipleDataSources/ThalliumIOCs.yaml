@@ -43,9 +43,7 @@ query: |
   | where DNSName  in~ (DomainNames)
   | extend IPAddress = ClientIP
   ),
-  (imDns 
-  | where isnotempty(DnsQuery)
-  | where DnsQuery  in~ (DomainNames)
+  (imDns (domain_has_any=DomainNames)
   | extend DNSName = DnsQuery
   | extend IPAddress = SrcIpAddr
   ),

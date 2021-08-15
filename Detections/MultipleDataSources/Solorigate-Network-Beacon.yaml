@@ -49,9 +49,9 @@ query:  |
     | where DNSName in~ (domains)
     | extend IPCustomEntity = ClientIP
     ),
-  (imDns 
+  (imDns (domain_has_any=domains)
     | where isnotempty(DnsQuery)
-    | where DnsQuery in~ (domains)
+    // | where DnsQuery in~ (domains)
     | extend DNSName = DnsQuery
     | extend IPCustomEntity = SrcIpAddr
     ),

@@ -107,8 +107,8 @@ query:  |
   | where DNSName  in~ (DomainNames) 
   | extend IPAddress =  ClientIP 
   ), 
-  (imDns  
-  | where isnotempty(DnsQuery) and DnsQuery in~ (DomainNames)
+  (imDns (domain_has_any=DomainNames)
+  // | where isnotempty(DnsQuery) and DnsQuery in~ (DomainNames)
   | extend DNSName = DnsQuery 
   | extend IPAddress =  SrcIpAddr, Computer = Dvc
   ), 
