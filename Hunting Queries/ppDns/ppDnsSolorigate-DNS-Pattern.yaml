@@ -1,0 +1,36 @@
+id: 0fb54a5c-5599-4ff9-80a2-f788c3ed285e
+name: Solorigate DNS Pattern
+description: |
+  'Looks for DGA pattern of the domain associated with Solorigate in order to find other domains with the same activity pattern.'
+requiredDataConnectors: []
+tactics:
+  - CommandAndControl
+relevantTechniques:
+  - T1568
+tags:
+  - Solorigate
+  - NOBELIUM
+query: |
+
+  let cloudApiTerms = dynamic(["api", "east", "west"]);
+  let commonTLD=dynamic(['com','net', 'org']);
+  ppDns(domain_has_any=cloudApiTerms)
+  | where IPAddresses != "" and IPAddresses != "127.0.0.1"
+  | where DnsQuery endswith ".com" or DnsQuery endswith ".org" or DnsQuery endswith ".net"
+  | extend domain_split = split(DnsQuery, ".")
+  | where tostring(domain_split[-5]) != "" and tostring(domain_split[-6]) == ""
+  | extend sub_domain = tostring(domain_split[0])
+  | where sub_domain !contains "-"
+  | extend sub_directories = strcat(domain_split[-3], " ", domain_split[-4])
+  | where sub_directories has_any(cloudApiTerms)
+  //Based on sample communications the subdomain is always between 20 and 30 bytes
+  | where strlen(sub_domain) < 32 and strlen(sub_domain) > 20
+  | extend domain = strcat(tostring(domain_split[-2]), ".", tostring(domain_split[-1])) 
+  | extend subdomain_no = countof(sub_domain, @"(\d)", "regex")
+  | extend subdomain_ch = countof(sub_domain, @"([a-z])", "regex")
+  | where subdomain_no > 1
+  | extend percentage_numerical = toreal(subdomain_no) / toreal(strlen(sub_domain)) * 100
+  | where percentage_numerical < 50 and percentage_numerical > 5
+  | summarize Count=count(), make_set(DnsQuery), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by DnsQuery
+  | order by Count asc
+  
