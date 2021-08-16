@@ -9,7 +9,7 @@ relevantTechniques:
   - T1046
 query: |
   let threshold = 10;
-  ppDns(domain_has_any="in-addr.arpa") 
+  imDns(domain_has_any="in-addr.arpa") 
   //| where Name contains "in-addr.arpa" 
   | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), NameCount = dcount(DnsQuery), Names = make_set(DnsQuery), ClientIPCount = count() by SrcIpAddr
   | where NameCount > threshold

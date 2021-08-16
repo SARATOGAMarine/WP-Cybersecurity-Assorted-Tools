@@ -17,7 +17,7 @@ query: |
 
   // Add additional TLDs to this list are required.
   let abusedTLD = dynamic(["click", "club", "download",  "xxx", "xyz"]);
-  ppDns(domain_has_any=abusedTLD)
+  imDns(domain_has_any=abusedTLD)
   | where DnsQuery has "." 
   | extend tld = tostring(split(DnsQuery, ".")[-1])
   | where tld in~ (abusedTLD)

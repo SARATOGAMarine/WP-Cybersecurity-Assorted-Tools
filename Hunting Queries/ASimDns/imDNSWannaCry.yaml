@@ -19,7 +19,7 @@ query: |
   "ofdwcjnko.us", "peuwdchnvn.us", "pvbeqjbqrslnkmashlsxb.us", "pxyhybnyv.us", "qkkftmpy.us", "rkhlkmpfpoqxmlqmkf.us", 
   "ryitsfeogisr.us", "srwcjdfrtnhnjekjerl.us", "thstlufnunxaksr.us", "udrgtaxgdyv.us", "w5q7spejg96n.com", "xmqlcikldft.us", 
   "yobvyjmjbsgdfqnh.us", "yrwgugricfklb.us", "ywpvqhlqnssecpdemq.us"]);
-  ppDns(domain_has_any=badDomains)
+  imDns(domain_has_any=badDomains)
   //| where Name in~ (badDomains)
   | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by Dvc, SrcIpAddr, WannaCrypt_Related_Domain = DnsQuery
   | extend timestamp = StartTimeUtc, HostCustomEntity = Dvc, IPCustomEntity = SrcIpAddr

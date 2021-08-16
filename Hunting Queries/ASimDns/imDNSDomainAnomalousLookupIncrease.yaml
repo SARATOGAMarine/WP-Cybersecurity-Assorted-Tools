@@ -18,7 +18,6 @@ relevantTechniques:
   - T1008
   - T1048
 query: |
-
   let startTime = 8d;
   let endTime = 1d;
   //example of excluding Saturday and Sunday in Average as those are potentially low volume and decrease the average, feel free to change
@@ -28,10 +27,9 @@ query: |
   // limit to over 1000 lookups somewhat random but helps focus in on higher lookups, change as needed
   let avglookupThreshold = 3;
   let lookupThreshold = 1000;
-  DnsEvents
+  imDns(starttime=startofday(ago(startTime)), endtime=startofday(ago(endTime))
   //Setting to startofday so we get 7 days prior to today
-  | where TimeGenerated >= startofday(ago(startTime)) and TimeGenerated <= startofday(ago(endTime))
-  | where SubType =~ "LookupQuery"
+  // | where TimeGenerated >= startofday(ago(startTime)) and TimeGenerated <= startofday(ago(endTime))
   //getting the associated number of the day of the week so we can map to a given day for later parsing if needed
   | extend DayNumberofWeek = tostring(dayofweek(TimeGenerated))
   //Setting the Day of the week value so that certain days could be excluded if needed
@@ -43,18 +41,17 @@ query: |
   (iff(DayNumberofWeek == "5.00:00:00", "Friday", 
   (iff(DayNumberofWeek == "6.00:00:00", "Saturday", DayNumberofWeek)))))))))))))
   | where DayofWeek !in~ (excludedDays) 
-  | extend Domain = iff(countof(Name,'.') >= 2, strcat(split(Name,'.')[-2], '.',split(Name,'.')[-1]), Name)
-  | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by ClientIP, Domain, IPAddresses
-  | project StartTimeUtc, EndTimeUtc, ClientIP, Domain, IPAddresses, DailyAvgLookupCountOverLastWeek = count_/numDays 
-  | join ( DnsEvents 
-  | where TimeGenerated >= startofday(ago(endTime)) 
-  | where SubType =~ "LookupQuery"
-  | extend Domain = iff(countof(Name,'.') >= 2, strcat(split(Name,'.')[-2], '.',split(Name,'.')[-1]), Name)
-  | summarize count() by ClientIP, Domain, IPAddresses 
-  | project ClientIP, LookupCountToday = count_, Domain, IPAddresses 
+  | extend Domain = iff(countof(DnsQuery,'.') >= 2, strcat(split(DnsQuery,'.')[-2], '.',split(DnsQuery,'.')[-1]), DnsQuery)
+  | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by SrcIpAddr, Domain, DnsResponseName
+  | project StartTimeUtc, EndTimeUtc, SrcIpAddr, Domain, DnsResponseName, DailyAvgLookupCountOverLastWeek = count_/numDays 
+  | join ( imDns(starttime=startofday(ago(startTime)))
+  // | where TimeGenerated >= startofday(ago(endTime)) 
+  | extend Domain = iff(countof(DnsQuery,'.') >= 2, strcat(split(DnsQuery,'.')[-2], '.',split(DnsQuery,'.')[-1]), DnsQuery)
+  | summarize count() by SrcIpAddr, Domain, DnsResponseName 
+  | project SrcIpAddr, LookupCountToday = count_, Domain, DnsResponseName 
   )
-  on ClientIP, Domain, IPAddresses 
+  on SrcIpAddr, Domain, DnsResponseName 
   | where LookupCountToday > ( DailyAvgLookupCountOverLastWeek * avglookupThreshold) and LookupCountToday > lookupThreshold 
-  | project StartTimeUtc, EndTimeUtc, ClientIP, SecondLevelDomain = Domain , LookupCountToday , DailyAvgLookupCountOverLastWeek, IPAddresses 
+  | project StartTimeUtc, EndTimeUtc, SrcIpAddr, SecondLevelDomain = Domain , LookupCountToday , DailyAvgLookupCountOverLastWeek, DnsResponseName 
   | order by LookupCountToday desc nulls last 
-  | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+  | extend timestamp = StartTimeUtc, IPCustomEntity = SrcIpAddr

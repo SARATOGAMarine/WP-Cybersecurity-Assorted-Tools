@@ -44,7 +44,7 @@ query: |
   | summarize make_set(target_encoded)
   //Key to join to DNS
   | extend key = 1;
-  imDns
+  ASimDns
   | summarize by DnsQuery
   | extend key = 1
   //For each DNS query join the malicious domain list

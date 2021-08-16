@@ -14,7 +14,7 @@ query: |
 
   let cloudApiTerms = dynamic(["api", "east", "west"]);
   let commonTLD=dynamic(['com','net', 'org']);
-  ppDns(domain_has_any=cloudApiTerms)
+  imDns(domain_has_any=cloudApiTerms)
   | where IPAddresses != "" and IPAddresses != "127.0.0.1"
   | where DnsQuery endswith ".com" or DnsQuery endswith ".org" or DnsQuery endswith ".net"
   | extend domain_split = split(DnsQuery, ".")

@@ -1,0 +1,53 @@
+id: a0954a17-cc66-4d47-9651-8bf524bbdcc8
+name: Abnormally long DNS URI queries
+description: |
+  'Length of DNS query can often be an indicator of suspicious activity. Typical domain name lengths are short whereas domain name query used 
+  for data exfiltration or tunneling can often be very large in size. This is because they could be encoded using base 64/32 etc. The hunting query looks 
+  for Names that are more than 150 characters in length. Due to a lot of services using long DNS to communicate via prcodurally generated long domain names
+  this can be prone, so a number of known services are excluded from this query. Additional items might need to be added to this exclusion dependent on your
+  environment.'
+requiredDataConnectors: []
+tactics:
+  - CommandAndControl
+  - Exfiltration
+relevantTechniques:
+  - T1483
+  - T1008
+  - T1048
+query: |
+
+  // Setting URI length threshold count, shorter URI's may cause noise, change as needed
+  let uriThreshold = 150;
+  let LocalDomains = 
+  (
+  ASimDns
+  | summarize count() by Dvc 
+  | extend SubDomain = tolower(strcat(tostring(split(Dvc, ".")[-2]),".", tostring(split(Dvc, ".")[-1])))
+  | distinct SubDomain
+  );
+  let DomainLookups =
+  (
+  ASimDns
+  | where SubType =~ "LookupQuery"
+  | where ipv4_is_match("127.0.0.1", SrcIpAddr) == False 
+  | where DnsQuery !endswith ".local" and DnsQuery !startswith "_" and DnsQuery !startswith "#"
+  | where DnsQuery !contains "::1"
+  | where not (DnsQuery has_any ("cnr.io" , "kr0.io" , "arcticwolf.net" , "webcfs00.com" , "barracudabrts.com", "trendmicro.com" , "sophosxl.net" , "spotify.com" , "e5.sk" , "mcafee.com" , "opendns.com"  , "spameatingmonkey.net" 
+  , "_ldap" , "_kerberos" , "modsecurity.org" , "fdmarc.net" , "ipass.com" , "wpad", "cnr.io" , "trendmicro.com" , "sophosxl.net" , "spotify.com" , "e5.sk" , "mcafee.com" 
+  , "opendns.com"  , "spameatingmonkey.net" , "_ldap" , "_kerberos" , "modsecurity.org" , "fdmarc.net" , "ipass.com" , "wpad"))
+  | extend DnsQuery = tolower(DnsQuery), Urilength = strlen(DnsQuery) 
+  | where Urilength >= uriThreshold
+  | extend SubDomain = case(
+  isempty(DnsQuery), DnsQuery,
+  array_length(split(DnsQuery, ".")) <= 2, DnsQuery,
+  tostring(split(DnsQuery, ".")[-2]) == "corp", strcat(tostring(split(DnsQuery, ".")[-3]),".",tostring(split(DnsQuery, ".")[-2]),".", tostring(split(DnsQuery, ".")[-1])),
+  strlen(tostring(split(DnsQuery, ".")[-1])) == 2, strcat(tostring(split(DnsQuery, ".")[-3]),".",tostring(split(DnsQuery, ".")[-2]),".", tostring(split(DnsQuery, ".")[-1])),
+  strlen(tostring(split(DnsQuery, ".")[-2])) != "corp", strcat(tostring(split(DnsQuery, ".")[-2]),".", tostring(split(DnsQuery, ".")[-1])),
+  DnsQuery))
+  ;
+  DomainLookups
+  | join kind= leftanti (
+      LocalDomains
+  ) on SubDomain 
+  | summarize by TimeGenerated, Dvc, SrcIpAddr , DnsQuery, Urilength
+  | extend timestamp = TimeGenerated, IPCustomEntity = SrcIpAddr, HostCustomEntity = Dvc
