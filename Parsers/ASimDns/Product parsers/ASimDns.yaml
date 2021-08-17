@@ -18,6 +18,6 @@ ParserName: ASimDns
 ParserQuery: |
   union isfuzzy=true
     vimDnsEmpty,
-    , vimDnsCiscoUmbrella
-    , vimDnsInfobloxNIOS
-    , vimDnsMicrosoftOMS
+    , ASimDnsCiscoUmbrella
+    , ASimDnsInfobloxNIOS
+    , ASimDnsMicrosoftOMS
