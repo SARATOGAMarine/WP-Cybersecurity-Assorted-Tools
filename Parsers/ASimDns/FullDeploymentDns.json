@@ -18,7 +18,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDnsEvents/ARM/ASimDns/ASimDns.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/ASimDns/ASimDns.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -38,7 +38,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/ASimDnsCiscoUmbrella/ASimDnsCiscoUmbrella.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/ASimDnsCiscoUmbrella/ASimDnsCiscoUmbrella.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -58,7 +58,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/ASimDnsInfobloxNIOS/ASimDnsInfobloxNIOS.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/ASimDnsInfobloxNIOS/ASimDnsInfobloxNIOS.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -78,7 +78,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/ASimDnsMicrosoftOMS/ASimDnsMicrosoftOMS.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/ASimDnsMicrosoftOMS/ASimDnsMicrosoftOMS.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -98,7 +98,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDnsEvents/ARM/DnsEmpty.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/DnsEmpty.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -118,7 +118,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDnsEvents/ARM/imDns/imDns.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/imDns/imDns.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -138,7 +138,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/vimDnsCiscoUmbrella/vimDnsCiscoUmbrella.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/vimDnsCiscoUmbrella/vimDnsCiscoUmbrella.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -158,7 +158,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/vimDnsInfobloxNIOS/vimDnsInfobloxNIOS.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/vimDnsInfobloxNIOS/vimDnsInfobloxNIOS.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -178,7 +178,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParameters/Parsers/ASimDns/ARM/vimDnsMicrosoftOMS/vimDnsMicrosoftOMS.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/vimDnsMicrosoftOMS/vimDnsMicrosoftOMS.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
