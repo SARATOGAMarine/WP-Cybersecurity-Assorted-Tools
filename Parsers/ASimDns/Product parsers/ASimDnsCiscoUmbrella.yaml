@@ -27,7 +27,7 @@ ParserQuery: |
       // ******************* Mandatory
         Type='Cisco_Umbrella_dns_CL',
          EventCount=int(1),
-         EventStartTime=todatetime(Timestamp_t),
+         EventStartTime= column_ifexists("Timestamp_t", todatetime(column_ifexists("Timestamp_s",""))),
          EventProduct="Umbrella",
          EventVendor="Cisco Systems",
          EventSchemaVersion="0.1.1",
@@ -61,8 +61,9 @@ ParserQuery: |
         DnsResponseCodeName=EventResultDetails, 
         DomainCategory=UrlCategory,
         Domain=DnsQuery,
-        IpAddr=SrcIpAddr,
+        IpAddr=SrcIpAddr
     // Backward Competability
+    | extend
         Query=DnsQuery
         , QueryType=DnsQueryType
         , ResponseCodeName=DnsResponseCodeName
