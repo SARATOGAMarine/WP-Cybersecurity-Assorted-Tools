@@ -108,7 +108,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/DnsEmpty.json",
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/dev/normalization/dns/paramParsers/Parsers/ASimDns/ARM/DnsEmpty/DnsEmpty.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
