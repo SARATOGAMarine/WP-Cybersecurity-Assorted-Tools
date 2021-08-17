@@ -43,10 +43,10 @@ ParserParams:
 ParserQuery: |
   let Infoblox=(
     starttime:datetime=datetime(null), endtime:datetime=datetime(null)
-    , srcipaddr:string='*'
+    , srcipaddr:string="*"
     , domain_has_any:dynamic=dynamic([]) 
-    , responsecodename:string='*', dnsresponsename:string='*'
-    , response_has_any:dynamic=dynamic([]) , eventtype:string='lookup'
+    , responsecodename:string="*", dnsresponsename:string="*"
+    , response_has_any:dynamic=dynamic([]) , eventtype:string="lookup"
     ){
     let RawData = Syslog 
     // *****************************************************************
@@ -55,10 +55,10 @@ ParserQuery: |
         | where
           (isnull(starttime) or TimeGenerated > starttime)
           and (isnull(endtime) or TimeGenerated < endtime) 
-          and (srcipaddr=='*' or  has_ipv4( SyslogMessage ,srcipaddr))
+          and (srcipaddr=="*" or  has_ipv4( SyslogMessage ,srcipaddr))
           and (array_length(domain_has_any) ==0 or SyslogMessage has_any (domain_has_any) )
           and (array_length(domain_has_any) ==0 or SyslogMessage has_any (domain_has_any))
-          and (responsecodename=='*' or SyslogMessage has responsecodename)
+          and (responsecodename=="*" or SyslogMessage has responsecodename)
     // *****************************************************************
     | where ProcessName == "named" and SyslogMessage has "client"
       | where Computer in ("datasource") and Facility == "local6"
@@ -71,20 +71,20 @@ ParserQuery: |
     RawData 
     | extend dnsdata=tostring(extract_all(@"^(\d{2}\-[a-zA-Z]{3}\-\d{4}\s[0-9\.\:]+)?\s?([a-zA-Z-_]+)(\s|\:)?(.*)", dynamic([1,2,3,4]), SyslogMessage)[0][3])
     | extend EventSubType=iff(dnsdata has "response:", "response", "request")
-    | extend dnsclient=iff(EventSubType=='response'
+    | extend dnsclient=iff(EventSubType=="response"
                 //<client ip>#port <UDP or TCP>: [view: DNS view] query: <queried domain name> <class name> <type name> response: <rcode> <flags> [<RR in text format>; [<RR in text format>;] ...]
-                , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? (UDP|TCP):? (view: DNS view)?query: (\S+) ([A-Z]+) (\S+) response:? ([A-Z]+) (\S+)(([^;]+;\s*)*)',dnsdata)[0]
+                , extract_all(@"^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? (UDP|TCP):? (view: DNS view)?query: (\S+) ([A-Z]+) (\S+) response:? ([A-Z]+) (\S+)(([^;]+;\s*)*)",dnsdata)[0]
                 //<client IP>#<port> query: <query_Domain name> <class name> <type name> <- or +>[SETDC] <(name server ip)>
-                , extract_all(@'^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? query: (\S+) (\S+) (\S+) ([+-]) \(([0-9.]+)\)',dnsdata)[0])
+                , extract_all(@"^(\@[a-z0-9]+\s)?([0-9\.]+)\#(\d+):? query: (\S+) (\S+) (\S+) ([+-]) \(([0-9.]+)\)",dnsdata)[0])
      | extend 
         SrcIpAddr = tostring(dnsclient[1]),
-        DnsQuery = iff (EventSubType=='response',tostring(dnsclient[5]), tostring(dnsclient[3])),
-        DnsResponseCodeName = iff (EventSubType=='response',tostring(dnsclient[8]),"")
+        DnsQuery = iff (EventSubType=="response",tostring(dnsclient[5]), tostring(dnsclient[3])),
+        DnsResponseCodeName = iff (EventSubType=="response",tostring(dnsclient[8]),"")
     // Post-filtering accurately now that message is parsed
     | where
-         (srcipaddr=='*' or  SrcIpAddr==srcipaddr)
+         (srcipaddr=="*" or  SrcIpAddr==srcipaddr)
           and (array_length(domain_has_any) ==0 or DnsQuery has_any (domain_has_any))
-          and (responsecodename=='*' or DnsResponseCodeName has responsecodename)
+          and (responsecodename=="*" or DnsResponseCodeName has responsecodename)
     | extend
     // ******************* Mandatory
          EventCount=int(1),
@@ -93,18 +93,18 @@ ParserQuery: |
          EventVendor="Infoblox",
          EventSchemaVersion="0.1.1",
          EventType="lookup", 
-        EventResult=iff(EventSubType=='request' or tostring(dnsclient[8])=='NOERROR','Success','Failure'),
-         EventResultDetails=iff (EventSubType=='response',tostring(dnsclient[8]),""),
+        EventResult=iff(EventSubType=="request" or tostring(dnsclient[8])=="NOERROR","Success","Failure"),
+         EventResultDetails=iff (EventSubType=="response",tostring(dnsclient[8]),""),
          EventSubType=iff(dnsclient has "response:", "response","request"), 
         // 
         SrcPortNumber = toint(dnsclient[2]),
-        NetworkProtocol = iff (EventSubType=='reaponse', tostring(dnsclient[3]),""),        
-        DnsQueryClassName = iff (EventSubType=='response',tostring(dnsclient[6]),tostring(dnsclient[4])),
-        DnsQueryTypeName = iff (EventSubType=='response',tostring(dnsclient[7]),tostring(dnsclient[5])),
-        DnsFlags =iff (EventSubType=='response', tostring(dnsclient[9]),tostring(dnsclient[6])),
+        NetworkProtocol = iff (EventSubType=="reaponse", tostring(dnsclient[3]),""),        
+        DnsQueryClassName = iff (EventSubType=="response",tostring(dnsclient[6]),tostring(dnsclient[4])),
+        DnsQueryTypeName = iff (EventSubType=="response",tostring(dnsclient[7]),tostring(dnsclient[5])),
+        DnsFlags =iff (EventSubType=="response", tostring(dnsclient[9]),tostring(dnsclient[6])),
         // 
-        EventMessage = iff (EventSubType=='response',tostring(dnsclient[-2]),""),
-        DstIpAddr=iff(EventSubType=='response',"",dnsclient[-1])
+        EventMessage = iff (EventSubType=="response",tostring(dnsclient[-2]),""),
+        DstIpAddr=iff(EventSubType=="response","",dnsclient[-1])
    | project-rename
        // * Added in version 0.1.1
          DvcHostname=Computer
