@@ -16,11 +16,30 @@ For more information, see:
 <br>
 
 The template deploys the following:
-* imDns - DNS events from all normalized DNS providers
-* vimDnsMicrosoft - DNS Events from Microsoft OMS
-* vimDnsCisco - DNS Events from Cisco Umbrella
-* vimDnsInfoblox - DNS Events from Infoblox NIOS 
+* ASimDns - Source agnostic DNS events parser
+* ASimDnsMicrosoftOMS - DNS Events from Microsoft OMS
+* ASimDnsCiscoUmbrella - DNS Events from Cisco Umbrella
+* ASimDnsInfobloxNIOS - DNS Events from Infoblox NIOS 
 * vimDnsEmpty - Emtpy ASIM DNS table
+
+Parametered Parsers:
+* imDns - Source agnostic DNS events parser
+* vimDnsMicrosoftOMS - DNS Events from Microsoft OMS
+* vimDnsCiscoUmbrella - DNS Events from Cisco Umbrella
+* vimDnsInfobloxNIOS - DNS Events from Infoblox NIOS 
+Supported parameters: [parameters are optional]
+
+| Name     | Type      | Default value |
+|----------|-----------|---------------|
+| starttime|  datetime | datetime(null)|
+|  endtime |  datetime | datetime(null) |
+|  srcipaddr |  string | '*' |
+|  domain_has_any|  dynamic | dynamic([]) |
+|  responsecodename |  string | '*' |
+|  dnsresponsename |  string | '*' |
+|  response_has_any|  dynamic| dynamic([])|
+|  eventtype|  string | 'lookup' |
+
 
 Note: the template asks for the list of Infoblox computers. You can ignore this input if you do not use Infoblox.  
 
