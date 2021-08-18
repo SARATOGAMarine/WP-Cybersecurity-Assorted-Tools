@@ -15,19 +15,31 @@ For more information, see:
 
 <br>
 
-The template deploys the following:
-* ASimDns - Source agnostic DNS events parser
-* ASimDnsMicrosoftOMS - DNS Events from Microsoft OMS
-* ASimDnsCiscoUmbrella - DNS Events from Cisco Umbrella
-* ASimDnsInfobloxNIOS - DNS Events from Infoblox NIOS 
-* vimDnsEmpty - Emtpy ASIM DNS table
+## Parsers
 
-Parametered Parsers:
-* imDns - Source agnostic DNS events parser
-* vimDnsMicrosoftOMS - DNS Events from Microsoft OMS
-* vimDnsCiscoUmbrella - DNS Events from Cisco Umbrella
-* vimDnsInfobloxNIOS - DNS Events from Infoblox NIOS 
-Supported parameters: [parameters are optional]
+The template deploys the following parsers:
+
+* Source Agnostic parsers:
+  * **ASimDns** - Use this parser when you want to query interactively your DNS logs.
+  * **imDns** - Use this parser, which supports the optimization parameters desribed below, when using DNS logs in your content such as detection, hunting queries or workbooks. You can also use it interactively if you want to optimize your query 
+  * **vimDnsEmpty** - Emtpy ASIM DNS table
+
+* Source Specific Parsers:
+  * **Microsoft DNS Server**, collected using the Log Analytics Agent - ASimDnsMicrosoftOMS (regular), vimDnsMicrosoftOMS (parametrized)
+  * **Cisco Umbrella** - ASimDnsCiscoUmbrella (regular), vimDnsCiscoUmbrella (parametrized)
+  * **Infoblox NIOS** - ASimDnsInfobloxNIOS (regular), vimDnsInfobloxNIOS (paramtrized) 
+
+use regular parsers when you want to query interactively your DNS logs. Use parameterized parsers when using DNS logs in your content such as detection, hunting queries or workbooks. You can also use it interactively if you want to optimize your query
+
+## Parser parameters
+
+Parametersize parsers support the following parameters which allow for pre-filtering and therefore significantly enhance parser perofrmance. All parameters are optional.
+
+To use parameters, set there value as you invoke the parser, for example
+
+`imDns (srcipaddr = '192.168.0.1') | ...`
+
+Supported parameters: 
 
 | Name     | Type      | Default value |
 |----------|-----------|---------------|
@@ -53,4 +65,5 @@ Note: the template asks for the list of Infoblox computers. You can ignore this 
 |---------|-----------|------|
 | 0.1.0 | June 2021 | Initial release |
 | 0.1.1 | July 2021 | Update to better align with OSSEM. The following field names where changed and the original left as an alias:<br> - Query -> DnsQuery<br> - QueryType -> DnsQueryType<br> - QueryTypeName -> DnsQueryTypeName<br> - ResponseName -> DnsResponseName<br> - ResponseCodeName -> DnsResponseCodeName<br> - ResponseCode -> DnsResponseCode<br> - QueryClass -> DnsQueryClass<br> - QueryClassName -> DnsQueryClassName<br> - Flags -> DnsFlags |
+| 0.2.0 | September 2021 | Added support for parametrized parsers |
 
