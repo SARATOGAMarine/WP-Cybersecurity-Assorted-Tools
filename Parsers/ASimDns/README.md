@@ -65,4 +65,5 @@ Note: the template asks for the list of Infoblox computers. You can ignore this 
 |---------|-----------|------|
 | 0.1.0 | June 2021 | Initial release |
 | 0.1.1 | July 2021 | Update to better align with OSSEM. The following field names where changed and the original left as an alias:<br> - Query -> DnsQuery<br> - QueryType -> DnsQueryType<br> - QueryTypeName -> DnsQueryTypeName<br> - ResponseName -> DnsResponseName<br> - ResponseCodeName -> DnsResponseCodeName<br> - ResponseCode -> DnsResponseCode<br> - QueryClass -> DnsQueryClass<br> - QueryClassName -> DnsQueryClassName<br> - Flags -> DnsFlags |
+| 0.2.0 | September 2021 | Added support for parametrized parsers |
 
