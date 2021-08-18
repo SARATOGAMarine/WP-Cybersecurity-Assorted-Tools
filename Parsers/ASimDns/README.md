@@ -33,9 +33,9 @@ use regular parsers when you want to query interactively your DNS logs. Use para
 
 ## Parser parameters
 
-Parametersize parsers support the following parameters which allow for pre-filtering and therefore significantly enhance parser perofrmance. All parameters are optional.
+Parametersize parsers support the following parameters which allow for pre-filtering and therefore significantly enhance parser perofrmance. All parameters are optional. The results will match all of the used parameters (AND logic).
 
-To use parameters, set there value as you invoke the parser, for example
+To use parameters, set their value as you invoke the parser, for example
 
 `imDns (srcipaddr = '192.168.0.1') | ...`
 
