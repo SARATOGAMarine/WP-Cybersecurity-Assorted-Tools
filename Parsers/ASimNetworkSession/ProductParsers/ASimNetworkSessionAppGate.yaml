@@ -1,0 +1,23 @@
+Query:
+  AppGate 
+  | where SyslogMessage has '"event_type":"tunnel_closed"'
+  | parse SyslogMessage with 
+      *
+      '"client_ip":"' SrcIpAddr:string '",'
+      '"client_port":' SrcPortNumber:int ','
+      *
+      '"distinguished_name_user":"' DstUsername '"'// Do we need the rest of the DN
+      *
+      '"time_zone":"' SrcGeoTimezone:string '",'
+      '"continent_code":"' SrcGeoContinent:string '",' // Add to schema?
+      '"city_name":"' SrcGeoCity:string '",'
+      '"country_name":"' SrcCountryName:string '",' // Add to schema?
+      '"country_code2":"' SrcCountry:string '",' // Does contry_code1 exist? What about country_code3?
+      *
+      '"latitude":' SrcGeoLatitude:double ','
+      '"longitude":' SrcGeoLongtitude:double ','
+      *
+      '"reason":"' EventOriginalResultDetails:string '",'
+      *
+      '\"session-duration\":' NetworkDuration:int ","
+      *
