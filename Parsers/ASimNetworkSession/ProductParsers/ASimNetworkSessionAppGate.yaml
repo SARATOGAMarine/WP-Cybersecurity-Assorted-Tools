@@ -15,7 +15,7 @@ Query:
       '"country_code2":"' SrcCountry:string '",' // Does contry_code1 exist? What about country_code3?
       *
       '"latitude":' SrcGeoLatitude:double ','
-      '"longitude":' SrcGeoLongtitude:double ','
+      '"longitude":' SrcGeoLongitude:double ','
       *
       '"reason":"' EventOriginalResultDetails:string '",'
       *

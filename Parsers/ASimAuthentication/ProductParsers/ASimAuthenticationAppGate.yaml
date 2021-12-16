@@ -1,0 +1,67 @@
+Parser:
+  Title: ASIM Authentication Event filtering parser for AppGate SDP
+  Version: '0.1.0'
+  LastUpdated: Dec 15, 2021
+Product:
+  Name: AppGate SDP
+Normalization:
+  Schema: Authentication
+  Version: '0.1.0'
+References:
+- Title: ASIM Authentication Schema
+  Link: https://aka.ms/ASimAuthenticationDoc
+- Title: ASIM 
+  Link: https:/aka.ms/AboutASIM
+- Title: ASimSourceType Watchlist
+  Link: https://github.com/Azure/Azure-Sentinel/tree/dev/normalization/proxy-parsers/Parsers/ASim/Watchlists
+Description: |
+    This ASIM parser supports filtering and normalizing AppGate SDP authentication logs to the ASIM Authentication normalized schema. This parser requires the hostname of the Syslog sources sending AppGate SDP events to be added to the ASimSourceType Watchlist.
+ParserName: ASimAuthenticationAppGateSDP
+ParserParams:
+  - Name: disabled
+    Type: bool
+    Default: false
+ParserQuery: |
+  let Sources_by_SourceType=(sourcetype:string){_GetWatchlist('ASimSourceType') | where SearchKey == tostring(sourcetype) | extend Source=column_ifexists('Source','') | where isnotempty(Source)| distinct Source };
+  let parser = (disabled:bool=false)
+  {
+    Syslog | where not(disabled) | 
+    | where Computer in (Sources_by_SourceType('AppGateSDP'))
+    | where SyslogMessage has '"event_type":"otp_authentication_succeeded"'
+    | parse SyslogMessage with 
+        *
+        '"client_ip":"' SrcIpAddr:string '",'
+        *
+        '"distinguished_name_device_id":"' SrcDvcId:string '",'
+        *
+        '"distinguished_name_user":"' TargetUsername '"'
+        *
+        '"city_name":"' SrcGeoCity:string '",'
+        *
+        '"country_code2":"' SrcCountry:string '",'
+        *
+        '"latitude":' SrcGeoLatitude:double ','
+        *
+        '"longitude":' SrcGeoLongitude:double ','
+        *
+        '"timestamp":"' EventEndTime:datetime '",'
+        *
+    //
+    | extend 
+    // -- Event
+      EventCount=int(1),
+      EventStartTime=EventEndTime,
+      EventProduct='AppGate SDP',
+      EventResult = 'Success',
+      EventSchemaVersion='0.1.0', // ??
+      EventType='Logon',
+      EventVendor ='AppGate',
+      TargetUserIdType ='SID' // ??
+    // --  Alias
+    | extend 
+      User = TargetUsername, 
+      LogonTarget=TargetDvcHostname, // ??
+      Dvc=TargetDvcHostname // ??
+  };
+  parser (disabled)
+
